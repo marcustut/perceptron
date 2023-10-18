@@ -1,0 +1,15 @@
+if(NOT PERCEPTRON_BUILD_EXAMPLES)
+    return()
+endif()
+
+set(EXAMPLES_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+function(example name)
+    add_executable(perceptron_example_${name} ${name}.cpp)
+    target_link_libraries(perceptron_example_${name} PUBLIC perceptron)
+    target_include_directories(perceptron_example_${name} PRIVATE ${PROJECT_SOURCE_DIR}/include)
+    file(RELATIVE_PATH dir ${EXAMPLES_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+    set_property(GLOBAL APPEND PROPERTY PERCEPTRON::EXAMPLES ${dir}/${name})
+    target_compile_features(perceptron_example_${name} PRIVATE cxx_std_20)
+endfunction(example)
+
+add_subdirectory(simple)
