@@ -51,6 +51,26 @@ perceptron::loss::CrossEntropy<T>::differentiate(const nc::NdArray<T> &predictio
     return predictions - targets;
 }
 
+template<typename T>
+T
+perceptron::loss::CrossEntropyLogits<T>::apply(const nc::NdArray<T> &predictions, const nc::NdArray<T> &targets) const {
+    auto max_logits = nc::max(predictions, nc::Axis::ROW);
+    auto exp_logits = nc::exp(predictions - max_logits);
+    auto softmax = exp_logits / nc::sum(exp_logits, nc::Axis::ROW);
+    auto clipped_softmax = nc::clip(softmax, 1e-15, 1.0 - 1e-15);
+    auto log_likelihood = -nc::sum(targets * nc::log(clipped_softmax), nc::Axis::ROW);
+    return nc::mean(log_likelihood)[0];
+}
+
+template<typename T>
+nc::NdArray<T> perceptron::loss::CrossEntropyLogits<T>::differentiate(const nc::NdArray<T> &predictions,
+                                                                      const nc::NdArray<T> &targets) const {
+    auto max_logits = nc::max(predictions, nc::Axis::ROW);
+    auto exp_logits = nc::exp(predictions - max_logits);
+    auto softmax = exp_logits / nc::sum(exp_logits, nc::Axis::ROW);
+    return softmax - targets;
+}
+
 template
 class perceptron::loss::MeanSquaredError<Scalar>;
 
@@ -59,3 +79,6 @@ class perceptron::loss::SSR<Scalar>;
 
 template
 class perceptron::loss::CrossEntropy<Scalar>;
+
+template
+class perceptron::loss::CrossEntropyLogits<Scalar>;

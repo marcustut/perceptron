@@ -16,10 +16,10 @@ namespace perceptron::loss {
     template<typename T>
     class Loss {
     public:
-        virtual T apply(const nc::NdArray <T> &predictions, const nc::NdArray <T> &targets) const = 0;
+        virtual T apply(const nc::NdArray<T> &predictions, const nc::NdArray<T> &targets) const = 0;
 
-        virtual nc::NdArray <T>
-        differentiate(const nc::NdArray <T> &predictions, const nc::NdArray <T> &targets) const = 0;
+        virtual nc::NdArray<T>
+        differentiate(const nc::NdArray<T> &predictions, const nc::NdArray<T> &targets) const = 0;
     };
 
     /**
@@ -29,10 +29,10 @@ namespace perceptron::loss {
     class MeanSquaredError : public Loss<T> {
     public:
         // MSE = sum((targets - predictions)^2) / n
-        T apply(const nc::NdArray <T> &predictions, const nc::NdArray <T> &targets) const;
+        T apply(const nc::NdArray<T> &predictions, const nc::NdArray<T> &targets) const;
 
         // MSE' = -2 (targets - predictions) / n
-        nc::NdArray <T> differentiate(const nc::NdArray <T> &predictions, const nc::NdArray <T> &targets) const;
+        nc::NdArray<T> differentiate(const nc::NdArray<T> &predictions, const nc::NdArray<T> &targets) const;
     };
 
     /**
@@ -42,10 +42,10 @@ namespace perceptron::loss {
     class SSR : public Loss<T> {
     public:
         // SSR = sum((targets - predictions)^2)
-        T apply(const nc::NdArray <T> &predictions, const nc::NdArray <T> &targets) const;
+        T apply(const nc::NdArray<T> &predictions, const nc::NdArray<T> &targets) const;
 
         // SSR' = -2 (targets - predictions)
-        nc::NdArray <T> differentiate(const nc::NdArray <T> &predictions, const nc::NdArray <T> &targets) const;
+        nc::NdArray<T> differentiate(const nc::NdArray<T> &predictions, const nc::NdArray<T> &targets) const;
     };
 
     /**
@@ -54,11 +54,20 @@ namespace perceptron::loss {
     template<typename T>
     class CrossEntropy : public Loss<T> {
     public:
-        // SSR = sum((targets - predictions)^2) / n
-        T apply(const nc::NdArray <T> &predictions, const nc::NdArray <T> &targets) const;
+        T apply(const nc::NdArray<T> &predictions, const nc::NdArray<T> &targets) const;
 
-        // SSR' = -2 (targets - predictions) / n
-        nc::NdArray <T> differentiate(const nc::NdArray <T> &predictions, const nc::NdArray <T> &targets) const;
+        nc::NdArray<T> differentiate(const nc::NdArray<T> &predictions, const nc::NdArray<T> &targets) const;
+    };
+
+    /**
+     * Cross Entropy Logits.
+     */
+    template<typename T>
+    class CrossEntropyLogits : public Loss<T> {
+    public:
+        T apply(const nc::NdArray<T> &predictions, const nc::NdArray<T> &targets) const;
+
+        nc::NdArray<T> differentiate(const nc::NdArray<T> &predictions, const nc::NdArray<T> &targets) const;
     };
 } // namespace perceptron::loss
 

@@ -4,15 +4,17 @@
 #define OUT_FEATURES 26
 #define HIDDEN_FEATURES 16
 
-#define MAX_EPOCHS 100
+#define MAX_EPOCHS 10000
 #define LEARNING_RATE 0.001
 #define TARGET_ERROR 0.001
-#define BATCH_SIZE 100
+#define BATCH_SIZE 1
 
 #define DATASET_PATH "letter-recognition.data"
 #define DATASET_REGEX "([A-Z]),(\\d+),(\\d+),(\\d+),(\\d+),(\\d+),(\\d+),(\\d+),(\\d+),(\\d+),(\\d+),(\\d+),(\\d+),(\\d+),(\\d+),(\\d+),(\\d+)"
 #define TRAIN_DATA_PCT 0.8
 
+#define EXPORT_TARGETS_PATH "letter_recognition_targets.csv"
+#define EXPORT_PREDICTIONS_PATH "letter_recognition_predictions.csv"
 
 auto encode_output_feature = [](const std::string &letter) {
     auto idx = static_cast<size_t>(letter[0] - 'A');
@@ -97,11 +99,11 @@ int main() {
 
     auto randomizer = perceptron::random::Xavier<Scalar>(IN_FEATURES, OUT_FEATURES);
     auto sigmoid = perceptron::activation::Sigmoid<Scalar>();
-    auto relu = perceptron::activation::ReLU<Scalar>();
+    auto linear = perceptron::activation::Linear<Scalar>();
     auto mlp = perceptron::MultiLayerPerceptron(
             std::vector<perceptron::Layer>{
                     perceptron::Layer(IN_FEATURES, HIDDEN_FEATURES, sigmoid),
-                    perceptron::Layer(HIDDEN_FEATURES, OUT_FEATURES, relu)
+                    perceptron::Layer(HIDDEN_FEATURES, OUT_FEATURES, linear)
             },
             randomizer
     );
@@ -111,38 +113,38 @@ int main() {
 
     auto temp = std::vector<std::pair<std::vector<Scalar>, std::vector<Scalar>>>(
             train_data.begin() + train_data.size() - 100, train_data.end());
-    auto loss = perceptron::loss::CrossEntropy<Scalar>();
+    auto loss = perceptron::loss::CrossEntropyLogits<Scalar>();
     auto on_epoch_handler = [&](const int epoch, const perceptron::loss::Loss<Scalar> &loss) {
         auto evaluation = mlp.evaluate(temp, loss);
+        fmt::println("Expected {} ({}x{}), Got {} ({}x{})", evaluation.targets[0], 1,
+                     evaluation.targets[0].size(), evaluation.predictions[0], 1,
+                     evaluation.predictions[0].size());
         if (evaluation.error < TARGET_ERROR) {
             fmt::println("Error is less than target error ({}). Stopping...", TARGET_ERROR);
             return true;
         }
         fmt::println("Epoch {}: error is {}, accuracy is {}", epoch, evaluation.error, evaluation.accuracy);
-//        fmt::println("Epoch {}", epoch);
         return false;
     };
 
     fmt::println("\nStarted training with learning rate {}, max epochs {} and batch size {}...", LEARNING_RATE,
                  MAX_EPOCHS, BATCH_SIZE);
 
-    mlp.train(train_data, loss, MAX_EPOCHS, LEARNING_RATE, on_epoch_handler);
-//    mlp.SGD(train_data, loss, MAX_EPOCHS, LEARNING_RATE, BATCH_SIZE, on_epoch_handler);
+//    mlp.train(train_data, loss, MAX_EPOCHS, LEARNING_RATE, on_epoch_handler);
+    mlp.SGD(train_data, loss, MAX_EPOCHS, LEARNING_RATE, BATCH_SIZE, on_epoch_handler);
 
-//    auto targets = nc::NdArray<Scalar>();
-//    auto predictions = nc::NdArray<Scalar>();
+    auto targets = nc::NdArray<Scalar>();
+    auto predictions = nc::NdArray<Scalar>();
 
     for (auto &[input, target]: test_data) {
         auto prediction = mlp.predict(input);
-//        fmt::println("Input: {}: Expected {}, Got {}", input, decode_output_feature(target),
-//                     decode_output_feature(prediction.toStlVector()));
         fmt::println("Input: {}: Expected {}, Got {}", input, target, prediction);
-//        targets = nc::append(targets, nc::NdArray(target));
-//        predictions = nc::append(predictions, prediction);
+        targets = nc::append(targets, nc::NdArray(target));
+        predictions = nc::append(predictions, prediction);
     }
 
-//    nc::tofile(targets, EXPORT_TARGETS_PATH, ',');
-//    nc::tofile(predictions, EXPORT_PREDICTIONS_PATH, ',');
+    nc::tofile(targets, EXPORT_TARGETS_PATH, ',');
+    nc::tofile(predictions, EXPORT_PREDICTIONS_PATH, ',');
 
     return 0;
 }

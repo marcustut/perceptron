@@ -20,8 +20,8 @@ using OnEpochHandler = std::function<std::optional<bool>(const int, const percep
 
 namespace perceptron {
     struct Evaluation {
-        nc::NdArray<Scalar> predictions;
-        nc::NdArray<Scalar> targets;
+        std::vector<std::vector<Scalar>> predictions;
+        std::vector<std::vector<Scalar>> targets;
         Scalar error, accuracy;
     };  // struct Evaluation
 
