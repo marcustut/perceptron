@@ -14,3 +14,4 @@ endfunction(example)
 
 add_subdirectory(xor)
 add_subdirectory(sin)
+add_subdirectory(letter_recognition)

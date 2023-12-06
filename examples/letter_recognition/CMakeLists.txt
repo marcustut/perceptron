@@ -1,0 +1,1 @@
+example(letter_recognition)

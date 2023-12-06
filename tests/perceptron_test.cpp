@@ -3,9 +3,6 @@
 #include "perceptron/perceptron.hpp"
 #include "fmt/ranges.h"
 
-#include "fmtlog/fmtlog.h"
-#include "fmtlog/fmtlog-inl.h"
-
 #define ABS_ERROR 0.05
 
 struct LayerTC {

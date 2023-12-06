@@ -7,13 +7,13 @@
 #include "perceptron/activation.hpp"
 #include "perceptron/loss.hpp"
 #include "perceptron/blas.hpp"
-#include "fmt/ranges.h"
-#include "fmtlog/fmtlog.h"
-#include "NumCpp.hpp"
 
-// Setup for fmtlog
-// See: <https://github.com/MengRao/fmtlog#header-only-version>
-#define FMTLOG_HEADER_ONLY
+#define FMT_HEADER_ONLY
+
+#include "fmt/format.h"
+#include "fmt/ranges.h"
+
+#include "NumCpp.hpp"
 
 using Matrix = perceptron::blas::Matrix;
 using OnEpochHandler = std::function<std::optional<bool>(const int, const perceptron::loss::Loss<Scalar> &)>;

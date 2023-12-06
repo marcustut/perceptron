@@ -41,26 +41,7 @@ template<typename T>
 T
 perceptron::loss::CrossEntropy<T>::apply(const nc::NdArray<T> &predictions,
                                          const nc::NdArray<T> &targets) const {
-    size_t rows = predictions.numRows();
-    size_t cols = predictions.numCols();
-
-    throw std::runtime_error("unimplemented");
-    return 0.0;
-//    auto loss = 0.0;
-//
-//    for (int i = 0; i < trainData.Length; ++i)
-//    {
-//        Array.Copy(trainData[i], xValues, numInput); // get inputs
-//        Array.Copy(trainData[i], numInput, tValues, 0, numOutput); // get targets
-//        double[] yValues = this.ComputeOutputs(xValues); // compute outputs
-//        for (int j = 0; j < numOutput; ++j)
-//        {
-//            loss += Math.Log(yValues[j]) * tValues[j]; // CE error
-//        }
-//    }
-//
-//
-//    return -1.0 * loss / trainData.Length;
+    return nc::sum(nc::nan_to_num(-targets * nc::log(predictions) - (1.0 - targets) * nc::log(1.0 - predictions)))[0];
 }
 
 template<typename T>

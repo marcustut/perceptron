@@ -6,7 +6,7 @@ project(perceptron
 )
 set(CMAKE_CXX_STANDARD 20)
 
-option(PERCEPTRON_BUILD_EXAMPLES "Set to ON to build examples" OFF)
+option(PERCEPTRON_BUILD_EXAMPLES "Set to ON to build examples" ON)
 option(PERCEPTRON_BUILD_TESTS "Set to ON to build tests" OFF)
 
 add_library(perceptron
@@ -20,8 +20,6 @@ add_library(perceptron
         src/perceptron/loss.cpp
         src/perceptron/random.cpp
         src/perceptron/blas.cpp
-        include/fmtlog/fmtlog.h
-        include/fmtlog/fmtlog-inl.h
         include/NumCpp.hpp
 )
 target_include_directories(perceptron PRIVATE ${PROJECT_SOURCE_DIR}/include)

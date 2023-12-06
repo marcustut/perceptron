@@ -46,7 +46,7 @@ int main() {
             randomizer
     );
 
-    auto loss = perceptron::loss::MeanSquaredError<Scalar>();
+    auto loss = perceptron::loss::SSR<Scalar>();
     auto on_epoch_handler = [&](const int epoch, const perceptron::loss::Loss<Scalar> &loss) {
         auto evaluation = mlp.evaluate(train_data, loss);
         if (evaluation.error < TARGET_ERROR) {

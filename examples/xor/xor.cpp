@@ -1,7 +1,6 @@
 
 #include <utility>
 #include <fmt/ranges.h>
-
 #include "perceptron/perceptron.hpp"
 
 #define IN_FEATURES 2

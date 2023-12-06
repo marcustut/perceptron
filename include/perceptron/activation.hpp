@@ -84,6 +84,22 @@ namespace perceptron::activation {
         // f'(x) = 1 - f(x)^2
         T differentiate(const T x);
     };
+
+    /**
+     * Softmax
+     * See: https://www.bragitoff.com/2021/12/efficient-implementation-of-softmax-activation-function-and-its-derivative-jacobian-in-python/
+     */
+    template<typename T>
+    class Softmax : public Activation<T> {
+    public:
+        T apply(const T x);
+
+        nc::NdArray<T> apply(const nc::NdArray<T> &x);
+
+        T differentiate(const T x);
+
+        nc::NdArray<T> differentiate(const nc::NdArray<T> &x);
+    };
 } // namespace perceptron::activation
 
 #endif //ACTIVATION_H

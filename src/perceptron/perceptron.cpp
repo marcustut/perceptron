@@ -90,10 +90,10 @@ void perceptron::MultiLayerPerceptron::gradient_descent(
         const perceptron::loss::Loss<Scalar> &loss,
         const double learning_rate) {
     // Create zero-ed weights and biases to keep track the delta and apply it later.
-    auto nabla_w = std::vector<nc::NdArray<Scalar>>(weights.size());
+    auto nabla_w = std::vector<nc::NdArray<Scalar >>(weights.size());
     std::transform(weights.begin(), weights.end(), nabla_w.begin(),
                    [](const auto &weight) { return nc::zeros<Scalar>(weight.numRows(), weight.numCols()); });
-    auto nabla_b = std::vector<nc::NdArray<Scalar>>(biases.size());
+    auto nabla_b = std::vector<nc::NdArray<Scalar >>(biases.size());
     std::transform(biases.begin(), biases.end(), nabla_b.begin(),
                    [](const auto &bias) { return nc::zeros<Scalar>(bias.numRows(), bias.numCols()); });
 
@@ -130,7 +130,7 @@ void perceptron::MultiLayerPerceptron::gradient_descent(
 std::pair<std::vector<nc::NdArray<Scalar>>, std::vector<nc::NdArray<Scalar>>>
 perceptron::MultiLayerPerceptron::backpropagate(
         std::vector<Scalar> &train_data,
-        std::vector<Scalar> &targets,
+        std::vector<Scalar> &_targets,
         const perceptron::loss::Loss<Scalar> &loss
 ) {
     // nabla stands for partial derivatives in calculus.
@@ -142,6 +142,7 @@ perceptron::MultiLayerPerceptron::backpropagate(
 
     // Backward pass
     // Calculate the partial derivative of the cost with respect to activations.
+    auto targets = nc::NdArray(_targets).transpose();
     auto delta_loss = loss.differentiate(*(A.end() - 1), targets);
     // Calculate the partial derivative of the activation with respect to weighted sum (for the last layer only).
     auto delta_a_last = (layers.end() - 1)->activation.differentiate(*(Z.end() - 1));
@@ -153,11 +154,13 @@ perceptron::MultiLayerPerceptron::backpropagate(
     *(nabla_b.end() - 1) = partial_delta;
 
     // After getting the derivative for the last part, we continue to find the derivatives for the entire network.
+    // NOTE: There is some issues here where if we have 3 or more layers, the dimensions for intermediate layers
+    //       get mixed up (check later).
     for (int i = layers.size() - 2; i >= 0; i--) { // NOLINT(*-narrowing-conversions)
         // Notice the partial delta from the last layer got updated.
         partial_delta = dot_or_broadcast_mult(weights[i + 1].transpose(), partial_delta) *
                         layers[i].activation.differentiate(Z[i]);
-        auto activation = A[max(0, i - 1)].transpose();
+        auto activation = A[max(0, i - 1)];
         nabla_w[i] = dot_or_broadcast_mult(partial_delta, activation);
         nabla_b[i] = partial_delta;
     }
@@ -188,6 +191,7 @@ perceptron::Evaluation
 perceptron::MultiLayerPerceptron::evaluate(
         std::vector<std::pair<std::vector<Scalar>, std::vector<Scalar>>> &_inputs,
         const perceptron::loss::Loss<Scalar> &loss) {
+    // NOTE: Wrong calculation for accuracy. Fix later.
     auto predictions = nc::NdArray<Scalar>();
     auto targets = nc::NdArray<Scalar>();
     for (auto &[input, target]: _inputs) {
