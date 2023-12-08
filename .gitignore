@@ -1,6 +1,5 @@
 .idea/
 cmake-build-debug/
 build/
-*.pdf
-*.mp4
 .DS_Store
+template.pdf
